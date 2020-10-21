@@ -15,15 +15,25 @@ if __name__ == '__main__':
     n, m = 200, 300000
     signals = np.random.random((n, m))
 
-    tic = time.perf_counter()
-    np_matrix = my_numpy_covariance(signals)
-    toc = time.perf_counter()
-    print(f"my_numpy_covariance: {toc - tic:0.4f} seconds")
+    avg_my_time = 0
+    avg_np_time = 0
+    test_repeats = 10
+    for test_repeat in range(test_repeats):
+        tic = time.perf_counter()
+        my_cov_matrix = my_numpy_covariance(signals)
+        toc = time.perf_counter()
+        avg_my_time += toc - tic
 
-    tic = time.perf_counter()
-    np_cov_matrix = np.cov(signals)
-    toc = time.perf_counter()
-    print(f"np.cov: {toc - tic:0.4f} seconds")
+        tic = time.perf_counter()
+        np_cov_matrix = np.cov(signals)
+        toc = time.perf_counter()
+        avg_np_time += toc - tic
 
-    diff_matrix = np_cov_matrix - np_matrix
-    assert np.abs(diff_matrix).max() < 10 ** -6
+        diff_matrix = np_cov_matrix - my_cov_matrix
+        assert np.abs(diff_matrix).max() < 10 ** -6
+        print(f"test repeat: {test_repeat + 1}")
+
+    avg_my_time /= test_repeats
+    avg_np_time /= test_repeats
+    print(f"my_numpy_covariance: {avg_my_time:0.4f} seconds")
+    print(f"np.cov: {avg_np_time:0.4f} seconds")
